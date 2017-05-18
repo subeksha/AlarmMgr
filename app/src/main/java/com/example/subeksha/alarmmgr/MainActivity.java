@@ -2,11 +2,14 @@ package com.example.subeksha.alarmmgr;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -28,6 +31,7 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import java.util.Date;
+
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -65,6 +69,23 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+
+        Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(MainActivity.this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
+        AlarmManager alarmManager=(AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime(), 1000 * 60 * 2, pendingIntent);
+
+
+
 
 
         mLatitudeTextView = (TextView) findViewById(R.id.latitude_text);
@@ -245,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
             mLastUpdateTime = java.text.DateFormat.getTimeInstance().format(new Date());
             updateLocationUI();
+            Log.d("subu", String.valueOf(mCurrentLocation));
             if (googleApiClient.isConnected() && mRequestingLocationUpdates) {
                 startLocationUpdates();
             }
